@@ -52,6 +52,8 @@ $(BUILD)/kernel.bin: \
 	$(BUILD)/kernel/interrupt.o\
 	$(BUILD)/kernel/handler.o\
 	$(BUILD)/kernel/clock.o\
+	$(BUILD)/kernel/time.o\
+	$(BUILD)/kernel/rtc.o\
 	$(BUILD)/lib/string.o\
 	$(BUILD)/lib/vsprintf.o\
 	$(BUILD)/lib/stdlib.o
@@ -76,17 +78,26 @@ clean:
 bochs: $(BUILD)/master.img
 	bochs -q -f ../bochs/bochsrc
 
+
+QEMU:= qemu-system-i386                                                  \
+	-m 32M                                                               \
+	-boot c                                                              \
+	-drive file=$(BUILD)/master.img,if=ide,index=0,media=disk,format=raw \
+	-audiodev pa,id=hda                                                  \
+	-machine pcspk-audiodev=hda                                          \
+	-rtc base=localtime                                                  \
+
 .PHONY: qemu
 qemu: $(BUILD)/master.img
-	qemu-system-i386 \
-	-m 32M           \
-	-boot c          \
-	-hda $<
+	$(QEMU)
+
 
 .PHONY: qemug
 qemug: $(BUILD)/master.img
-	qemu-system-i386 \
-	-s -S 			 \
-	-m 32M           \
-	-boot c          \
-	-hda $<
+	$(QEMU) -s -S
+
+$(BUILD)/master.vmdk: $(BUILD)/master.img
+	qemu-img convert -O vmdk $< $@
+
+.PHONY:vmdk
+vmdk: $(BUILD)/master.vmdk

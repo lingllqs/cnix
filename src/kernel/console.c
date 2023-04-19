@@ -151,6 +151,8 @@ static void command_del()
     *(u16 *)pos = erase;
 }
 
+extern void start_beep();
+
 // 往控制台写入字符串
 void console_write(char *buf, u32 count)
 {
@@ -161,19 +163,10 @@ void console_write(char *buf, u32 count)
         ch = *buf++; // 获取第一个字符
         switch (ch)
         {
-// #define ASCII_NUL 0x00
-// #define ASCII_ENQ 0x05
-// #define ASCII_BEL 0x07 // \a
-// #define ASCII_BS 0x08  // \b
-// #define ASCII_HT 0x09  // \t
-// #define ASCII_LF 0x0a  // \n
-// #define ascii_vt 0x0b  // \v
-// #define ASCII_FF 0x0c  // \f
-// #define ASCII_CR 0x0d  // \r
-// #define ASCII_DEL 0x7f
             case ASCII_NUL:
                 break;
             case ASCII_BEL:
+                start_beep();
                 break;
             case ASCII_BS:
                 command_bs();
