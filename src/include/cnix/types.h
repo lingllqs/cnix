@@ -2,13 +2,16 @@
 #define CNIX_TYPES_H
 
 #define EOF -1
-#define NULL 0
+#define NULL ((void *)0)
+#define EOS '\0'
 
 #define bool _Bool
 #define true 1
 #define false 0
 
 #define  _packed __attribute__((packed))
+
+#define _ofp __attribute__((optimize("omit-frame-pointer")))
 
 typedef unsigned int size_t;
 

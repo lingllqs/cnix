@@ -11,13 +11,31 @@ mov es, ax
 mov ss, ax
 mov sp, 0x7c00
 
+
+; xchg bx, bx
+; mov word [0 * 4], interrupt
+; mov word [0 * 4 + 2], 0
+;
+; ; int 0x80
+; mov dx, 0
+; mov ax, 1
+; mov bx, 0
+; xchg bx, bx
+; div bx
+
+; jmp $
+
+; interrupt:
+;     mov si, booting
+;     call print
+;     xchg bx, bx
+;     iret
+
 ; 0xb8000 文本显示器的内存区域
 mov si, booting; si指向字符串地址
 call print
 
-; xchg bx, bx ; bochs的魔术断点
-
-; jmp error
+; xchg bx, bx
 
 mov edi, 0x1000; 读取硬盘扇区到此位置
 mov ecx, 2; 起始扇区
@@ -31,8 +49,6 @@ jnz error
 
 ; 跳转到loader中执行
 jmp 0:0x1002
-
-; xchg bx, bx; 打断点
 
 
 

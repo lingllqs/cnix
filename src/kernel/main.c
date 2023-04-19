@@ -1,13 +1,20 @@
-#include <cnix/cnix.h>
+extern console_init();
+extern gdt_init();
+extern interrupt_init();
+extern clock_init();
+extern task_init();
+extern hang();
 
-int magic = CNIX_MAGIC;
-char message[] = "hello cnix!!!";
-char buff[1024];
 
 void kernel_init()
 {
-    char *video = (char *)0xb8000;
-    for (int i = 0; i < sizeof(message); ++i) {
-        video[i * 2] = message[i];
-    }
+    console_init();
+    gdt_init();
+    interrupt_init();
+    clock_init();
+    task_init();
+
+
+    asm volatile("sti");
+    hang();
 }
