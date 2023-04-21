@@ -90,13 +90,42 @@ void set_interrupt_mask(u32 irq, bool enable)
     }
 }
 
+bool interrupt_disable()
+{
+    asm volatile(
+        "pushfl\n"
+        "cli\n"
+        "popl %eax\n"
+        "shrl $9, %eax\n"
+        "andl $1, %eax\n"
+    );
+}
+
+bool get_interrupt_state()
+{
+    asm volatile(
+        "pushfl\n"
+        "popl %eax\n"
+        "shrl $9, %eax\n"
+        "andl $1, %eax\n"
+    );
+}
+
+void set_interrupt_state(bool state)
+{
+    if (state)
+        asm volatile("sti\n");
+    else
+        asm volatile("cli\n");
+}
+
 u32 counter = 0;
 // extern void schedule();
 
 void default_handler(int vector)
 {
     send_eoi(vector);
-    DEBUGK("[%x] default interrupt called %d...\n", vector, counter);
+    DEBUGK("[%x] default interrupt called...\n", vector);
     // schedule();
 }
 

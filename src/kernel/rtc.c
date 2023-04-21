@@ -47,7 +47,7 @@ void rtc_handler(int vector)
 
     cmos_read(CMOS_C);
 
-    set_alarm(1);
+    // set_alarm(1);
 
     LOGK("rtc handler %d ...\n",  counter++);
 }
@@ -86,6 +86,9 @@ void set_alarm(u32 secs)
     cmos_write(CMOS_HOUR, bin_to_bcd(time.tm_hour));
     cmos_write(CMOS_MINUTE, bin_to_bcd(time.tm_min));
     cmos_write(CMOS_SECOND, bin_to_bcd(time.tm_sec));
+
+    cmos_write(CMOS_B, 0b00100010);// 打开闹钟中断
+    cmos_read(CMOS_C);// 读C寄存器，以允许CMOS中断
 }
 
 void rtc_init()
@@ -93,13 +96,13 @@ void rtc_init()
     u8 prev;
 
     // cmos_write(CMOS_B, 0b01000010);// 打开周期中断
-    cmos_write(CMOS_B, 0b00100010);// 打开闹钟中断
-    cmos_read(CMOS_C);
+    // cmos_write(CMOS_B, 0b00100010);// 打开闹钟中断
+    // cmos_read(CMOS_C);
 
-    set_alarm(2);
+    // set_alarm(2);
     
     // 设置中断频率
-    outb(CMOS_A, (inb(CMOS_A) & 0xf) | 0b1110);
+    // outb(CMOS_A, (inb(CMOS_A) & 0xf) | 0b1110);
     set_interrupt_handler(IRQ_RTC, rtc_handler);
     set_interrupt_mask(IRQ_RTC, true);
     set_interrupt_mask(IRQ_CASCADE, true);

@@ -3,11 +3,36 @@
 
 #include <cnix/types.h>
 
+#define KERNEL_USER 0
+#define NORMAL_USER 1
+
+#define TASK_NAME_LEN 16
+
 typedef u32 target_t();
+
+typedef enum task_state_t
+{
+    TASK_INIT,
+    TASK_RUNNING,
+    TASK_READY,
+    TASK_BLOCKED,
+    TASK_SLEEPING,
+    TASK_WAITING,
+    TASK_DIED
+} task_state_t;
 
 typedef struct task_t
 {
     u32 *stack; // 内核栈
+    task_state_t state;
+    u32 priority;
+    u32 ticks;
+    u32 jiffies;
+    u32 name[TASK_NAME_LEN];
+    u32 uid;
+    u32 pde;
+    struct bitmap_t *vmap;
+    u32 magic;
 } task_t;
 
 typedef struct task_frame_t
@@ -19,6 +44,9 @@ typedef struct task_frame_t
     void (*eip)(void);
 } task_frame_t;
 
-void task_init();
+/* void task_init(); */
+task_t *running_task();
+void schedule();
+
 
 #endif

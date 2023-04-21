@@ -16,16 +16,6 @@ DEBUG:= -g
 
 INCLUDE:=-I$(SRC)/include
 
-$(BUILD)/master.img: $(BUILD)/boot/boot.bin \
-	$(BUILD)/boot/loader.bin                \
-	$(BUILD)/system.bin                     \
-	$(BUILD)/system.map
-	
-	yes | bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $@
-	dd if=$(BUILD)/boot/boot.bin of=$@ bs=512 count=1 conv=notrunc
-	dd if=$(BUILD)/boot/loader.bin of=$@ bs=512 count=4 seek=2 conv=notrunc
-	dd if=$(BUILD)/system.bin of=$@ bs=512 count=200 seek=10 conv=notrunc
-
 $(BUILD)/boot/%.bin: $(SRC)/boot/%.asm
 	$(shell mkdir -p $(dir $@))
 	nasm -f bin $< -o $@
@@ -54,6 +44,8 @@ $(BUILD)/kernel.bin: \
 	$(BUILD)/kernel/clock.o\
 	$(BUILD)/kernel/time.o\
 	$(BUILD)/kernel/rtc.o\
+	$(BUILD)/kernel/memory.o\
+	$(BUILD)/lib/bitmap.o\
 	$(BUILD)/lib/string.o\
 	$(BUILD)/lib/vsprintf.o\
 	$(BUILD)/lib/stdlib.o
@@ -68,7 +60,23 @@ $(BUILD)/system.bin: $(BUILD)/kernel.bin
 $(BUILD)/system.map: $(BUILD)/kernel.bin
 	nm $< | sort > $@
 
-test: $(BUILD)/master.img
+$(BUILD)/master.img: $(BUILD)/boot/boot.bin \
+	$(BUILD)/boot/loader.bin                \
+	$(BUILD)/system.bin                     \
+	$(BUILD)/system.map
+	
+	# 创建一个16M的硬盘镜像
+	yes | bximage -q -hd=16 -func=create -sectsize=512 -imgmode=flat $@
+	# 将boot.bin写入主引导扇区
+	dd if=$(BUILD)/boot/boot.bin of=$@ bs=512 count=1 conv=notrunc
+	# 将loader.bin写入硬盘
+	dd if=$(BUILD)/boot/loader.bin of=$@ bs=512 count=4 seek=2 conv=notrunc
+	# 测试system.bin小于100k,否则需要修改下面的count
+	test -n "$$(find $(BUILD)/system.bin -size -100k)"
+	# 将system.bin写入硬盘
+	dd if=$(BUILD)/system.bin of=$@ bs=512 count=200 seek=10 conv=notrunc
+
+image: $(BUILD)/master.img
 
 .PHONY: clean
 clean:
@@ -76,7 +84,7 @@ clean:
 
 .PHONY: bochs
 bochs: $(BUILD)/master.img
-	bochs -q -f ../bochs/bochsrc
+	bochs -q -f ../bochs/bochsrc -unlock
 
 
 QEMU:= qemu-system-i386                                                  \

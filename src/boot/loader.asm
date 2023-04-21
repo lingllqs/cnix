@@ -32,7 +32,7 @@ detect_memory:
     add di, cx
 
     ; 将结构体数量加一 
-    inc word [ards_count]
+    inc dword [ards_count]
 
     cmp ebx, 0
     jnz .next
@@ -107,6 +107,9 @@ protect_mode:
 
     ; 读入内核
     call read_disk
+    
+    mov eax, 0x20233202
+    mov ebx, ards_count
 
     jmp dword code_selector:0x10000
 
@@ -232,6 +235,6 @@ error:
 
 
 ards_count:
-    dw 0
+    dd 0
 ards_buffer:
     

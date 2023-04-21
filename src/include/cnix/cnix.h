@@ -1,8 +1,9 @@
 #ifndef CNIX_H
 #define CNIX_H
 
-#define CNIX_MAGIC 20230417
+// 内核魔数
+#define CNIX_MAGIC 0x20233202
 
-void kernel_init();
+// void kernel_init();
 
 #endif

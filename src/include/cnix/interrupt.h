@@ -41,6 +41,10 @@ void send_eoi(int vector);
 
 void set_interrupt_handler(u32 irq, handler_t handler);
 void set_interrupt_mask(u32 irq, bool enable);
-void interrupt_init();
+
+bool interrupt_disable();
+bool get_interrupt_state();
+void set_interrupt_state(bool state);
+/* void interrupt_init(); */
 
 #endif
