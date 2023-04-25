@@ -30,6 +30,9 @@ interrupt_entry:
     ; 调用中断处理函数
     call [handler_table + eax * 4]
 
+global interrupt_exit
+interrupt_exit:
+
     add esp, 4
 
     popa
@@ -152,4 +155,42 @@ handler_entry_table:
     dd interrupt_handler_0x2f
 
 
+section .text
+
+extern syscall_check
+extern syscall_table
+global syscall_handler
+syscall_handler:
+    ; xchg bx, bx
+
+    ; 验证系统调用号
+    push eax
+    call syscall_check
+    add esp, 4
+
+    push 0x20233202
+
+    push 0x80
+
+    push ds
+    push es
+    push fs
+    push gs
+    pusha
+
+    push 0x80
+    ; xchg bx, bx
+
+    push edx; 第3个参数
+    push ecx
+    push ebx
+
+    call [syscall_table + eax * 4]
+
+    ; xchg bx, bx
+    add esp, 12
+
+    mov dword [esp + 8 * 4], eax
+
+    jmp interrupt_exit
 

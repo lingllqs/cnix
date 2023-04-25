@@ -3,18 +3,19 @@
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
-extern void console_init();
+extern void memory_map_init();
 extern void mapping_init();
-extern void gdt_init();
 extern void interrupt_init();
 extern void clock_init();
 extern void task_init();
 extern void time_init();
 extern void rtc_init();
+extern void syscall_init();
 extern void hang();
 
-extern void memory_map_init();
 extern void memory_test();
+
+extern void list_test();
 
 void kernel_init()
 {
@@ -26,6 +27,8 @@ void kernel_init()
     /* rtc_init(); */
 
     task_init();
+    syscall_init();
+
 
     set_interrupt_state(true);
 }

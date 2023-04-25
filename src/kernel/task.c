@@ -6,12 +6,15 @@
 #include <cnix/interrupt.h>
 #include <cnix/string.h>
 #include <cnix/bitmap.h>
+#include <cnix/syscall.h>
+#include <cnix/list.h>
 
 extern bitmap_t kernel_map;
 extern void task_switch(task_t *next);
 
 #define NR_TASKS 64
-static task_t *task_table[NR_TASKS];
+static task_t *task_table[NR_TASKS]; // 任务表
+static list_t block_list;            // 任务默认阻塞链表
 
 static task_t *get_free_task()
 {
@@ -49,6 +52,47 @@ static task_t *task_search(task_state_t state)
     return task;
 }
 
+void task_yield()
+{
+    schedule();
+}
+
+// 任务阻塞
+void task_block(task_t *task, list_t *blist, task_state_t state)
+{
+    assert(!get_interrupt_state());
+    assert(task->node.next == NULL);
+    assert(task->node.prev == NULL);
+
+    if (blist == NULL)
+    {
+        blist = &block_list;
+    }
+
+    list_push(blist, &task->node);
+    assert(state != TASK_READY && state != TASK_RUNNING);
+
+    task->state = state;
+
+    task_t *current = running_task();
+    if (current == task)
+    {
+        schedule();
+    }
+}
+
+void task_unblock(task_t *task)
+{
+    assert(!get_interrupt_state());
+
+    list_remove(&task->node);
+
+    assert(task->node.next == NULL);
+    assert(task->node.prev == NULL);
+
+    task->state = TASK_READY;
+}
+
 task_t *running_task()
 {
     asm volatile(
@@ -60,6 +104,8 @@ task_t *running_task()
 
 void schedule()
 {
+    assert(!get_interrupt_state());
+
     task_t *current = running_task();
     task_t *next = task_search(TASK_READY);
 
@@ -71,6 +117,11 @@ void schedule()
         current->state = TASK_READY;
     }
 
+    if (!current->ticks)
+    {
+        current->ticks = current->priority;
+    }
+
     next->state = TASK_RUNNING;
     if (next == current)
         return;
@@ -79,7 +130,7 @@ void schedule()
 }
 
 // 任务创建
-static void task_create(target_t target, const char *name, u32 priority, u32 uid)
+static task_t* task_create(target_t target, const char *name, u32 priority, u32 uid)
 {
     task_t *task = get_free_task();
     memset(task, 0, PAGE_SIZE);
@@ -126,6 +177,7 @@ u32 thread_a()
     while (true)
     {
         printk("A");
+        test();
     }
 }
 
@@ -137,6 +189,7 @@ u32 thread_b()
     while (true)
     {
         printk("B");
+        test();
     }
 }
 
@@ -149,11 +202,14 @@ u32 thread_c()
     while (true)
     {
         printk("C");
+        test();
     }
 }
 
 void task_init()
 {
+    list_init(&block_list);
+
     task_setup();
 
     task_create(thread_a, "a", 5, KERNEL_USER);

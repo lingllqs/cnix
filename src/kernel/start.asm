@@ -14,4 +14,5 @@ _start:
     call gdt_init
     call memory_init
     call kernel_init
+
     jmp $

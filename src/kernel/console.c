@@ -1,6 +1,7 @@
 #include <cnix/console.h>
 #include <cnix/io.h>
 #include <cnix/string.h>
+#include <cnix/interrupt.h>
 
 #define CRT_ADDR_REG 0x3d4 // CRT(6845)索引寄存器
 #define CRT_DATA_REG 0x3d5 // CRT(6845)数据寄存器
@@ -156,6 +157,7 @@ extern void start_beep();
 // 往控制台写入字符串
 void console_write(char *buf, u32 count)
 {
+    bool intr = interrupt_disable();
     char ch;
     // char *ptr = (char *)pos; // ptr指向当前光标内存位置
     while (count--)
@@ -207,6 +209,7 @@ void console_write(char *buf, u32 count)
         }
     }
     set_cursor();
+    set_interrupt_state(intr);
 }
 
 void console_init()
