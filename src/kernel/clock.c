@@ -37,22 +37,27 @@ void stop_beep() {
   }
 }
 
-void clock_handler(int vector) {
-  assert(vector == 0x20);
-  send_eoi(vector);
-  stop_beep();
+extern void task_wakeup();
 
-  jiffies++;
-  /* DEBUGK("clock jiffies %d ...\n", jiffies); */
+void clock_handler(int vector) 
+{
+    assert(vector == 0x20);
+    send_eoi(vector);
 
-  task_t *task = running_task();
-  assert(task->magic == CNIX_MAGIC);
+    stop_beep();
+    task_wakeup();
 
-  task->jiffies = jiffies;
-  task->ticks--;
-  if (!task->ticks) {
-    schedule();
-  }
+    jiffies++;
+    /* DEBUGK("clock jiffies %d ...\n", jiffies); */
+
+    task_t *task = running_task();
+    assert(task->magic == CNIX_MAGIC);
+
+    task->jiffies = jiffies;
+    task->ticks--;
+    if (!task->ticks) {
+        schedule();
+    }
 }
 
 void pit_init() {

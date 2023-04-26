@@ -15,7 +15,6 @@ extern void hang();
 
 extern void memory_test();
 
-extern void list_test();
 
 void kernel_init()
 {
@@ -23,8 +22,8 @@ void kernel_init()
     mapping_init();
     interrupt_init();
     clock_init();
-    /* time_init(); */
-    /* rtc_init(); */
+    time_init();
+    rtc_init();
 
     task_init();
     syscall_init();

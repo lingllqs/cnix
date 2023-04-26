@@ -42,7 +42,7 @@ static u32 sys_test()
     return 255;
 }
 
-extern void task_yield();
+/* extern void task_yield(); */
 
 void syscall_init()
 {
@@ -52,5 +52,6 @@ void syscall_init()
     }
 
     syscall_table[SYS_NR_TEST] = sys_test;
+    syscall_table[SYS_NR_SLEEP] = task_sleep;
     syscall_table[SYS_NR_YIELD] = task_yield;
 }

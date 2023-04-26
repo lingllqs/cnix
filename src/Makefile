@@ -28,30 +28,31 @@ $(BUILD)/%.o: $(SRC)/%.c
 	$(shell mkdir -p $(dir $@))
 	gcc $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
 
-$(BUILD)/kernel.bin: \
-	$(BUILD)/kernel/start.o \
-	$(BUILD)/kernel/main.o\
-	$(BUILD)/kernel/io.o\
-	$(BUILD)/kernel/console.o\
-	$(BUILD)/kernel/printk.o\
-	$(BUILD)/kernel/assert.o\
-	$(BUILD)/kernel/debug.o\
-	$(BUILD)/kernel/global.o\
-	$(BUILD)/kernel/task.o\
-	$(BUILD)/kernel/gate.o\
-	$(BUILD)/kernel/schedule.o\
-	$(BUILD)/kernel/interrupt.o\
-	$(BUILD)/kernel/handler.o\
-	$(BUILD)/kernel/clock.o\
-	$(BUILD)/kernel/time.o\
-	$(BUILD)/kernel/rtc.o\
-	$(BUILD)/kernel/memory.o\
-	$(BUILD)/lib/bitmap.o\
-	$(BUILD)/lib/string.o\
-	$(BUILD)/lib/vsprintf.o\
-	$(BUILD)/lib/stdlib.o\
-	$(BUILD)/lib/syscall.o\
-	$(BUILD)/lib/list.o\
+$(BUILD)/kernel.bin:            \
+	$(BUILD)/kernel/start.o     \
+	$(BUILD)/kernel/main.o      \
+	$(BUILD)/kernel/io.o        \
+	$(BUILD)/kernel/console.o   \
+	$(BUILD)/kernel/printk.o    \
+	$(BUILD)/kernel/assert.o    \
+	$(BUILD)/kernel/debug.o     \
+	$(BUILD)/kernel/global.o    \
+	$(BUILD)/kernel/task.o      \
+	$(BUILD)/kernel/gate.o      \
+	$(BUILD)/kernel/schedule.o  \
+	$(BUILD)/kernel/interrupt.o \
+	$(BUILD)/kernel/handler.o   \
+	$(BUILD)/kernel/clock.o     \
+	$(BUILD)/kernel/time.o      \
+	$(BUILD)/kernel/rtc.o       \
+	$(BUILD)/kernel/memory.o    \
+	$(BUILD)/kernel/thread.o    \
+	$(BUILD)/lib/bitmap.o       \
+	$(BUILD)/lib/string.o       \
+	$(BUILD)/lib/vsprintf.o     \
+	$(BUILD)/lib/stdlib.o       \
+	$(BUILD)/lib/syscall.o      \
+	$(BUILD)/lib/list.o         \
 
 	
 	$(shell mkdir -p $(dir $@))
